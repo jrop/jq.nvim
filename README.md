@@ -28,10 +28,6 @@ you have a saved filter that you want to load into the filter window, then run:
 
 - `jq` Must be installed and in your `$PATH`
 
-## TODO
-
-- [ ] Allow optionally using horizontal splits instead of vertical
-
 ## License (MIT)
 
 The MIT License (MIT)
