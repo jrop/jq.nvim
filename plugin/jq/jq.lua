@@ -54,7 +54,7 @@ function Jq_command(horizontal)
   local json_bufnr = vim.fn.bufnr()
 
   vim.cmd(splitcmd)
-  vim.cmd'set filetype=jq'
+  vim.cmd'set filetype=conf'
   set_buf_text('# JQ filter: press <CR> to execute it\n\n.')
   vim.cmd'normal!G'
   local jq_bufnr = vim.fn.bufnr()
