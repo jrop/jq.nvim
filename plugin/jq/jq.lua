@@ -31,9 +31,18 @@ function set_buf_text(text, bufnr)
   )
 end
 
-function jq_filter(json, jq_filter)
+function jq_filter(json_bufnr, jq_filter)
   -- spawn jq and pipe in json, returning the output text
-  return vim.fn.system({ 'jq', jq_filter }, json)
+  local modified = vim.bo[json_bufnr].modified
+  local fname = vim.fn.bufname(json_bufnr)
+
+  if (not modified) and fname ~= '' then
+    -- the following should be faster as it lets jq read the file contents
+    return vim.fn.system({ 'jq', jq_filter, fname })
+  else
+    local json = buf_text(json_bufnr)
+    return vim.fn.system({ 'jq', jq_filter }, json)
+  end
 end
 
 function Jq_command(horizontal)
@@ -63,9 +72,8 @@ function Jq_command(horizontal)
     'n',
     '<CR>',
     function()
-      local json = buf_text(json_bufnr)
       local filter = buf_text(jq_bufnr)
-      set_buf_text(jq_filter(json, filter), result_bufnr)
+      set_buf_text(jq_filter(json_bufnr, filter), result_bufnr)
     end,
     { buffer = jq_bufnr }
   )
