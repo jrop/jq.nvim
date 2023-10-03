@@ -43,18 +43,19 @@ function Jq_command(split)
   local first_split = nil
   local second_split = nil
 
-  if split == "v" then
+  if split == "3V" then
     first_split = "vnew"
     second_split = "vnew"
-  elseif split == "vh" then
-    first_split = "vnew"
+  elseif split == "3H" then
+    first_split = "new"
     second_split = "new"
-  elseif split == "hv" then
+  elseif split == "HV" then
     first_split = "new"
     second_split = "vnew"
   else
+    -- defaults to "VH"
     first_split = "vnew"
-    second_split = "vnew"
+    second_split = "new"
   end
 
   local json_bufnr = vim.fn.bufnr()
@@ -79,20 +80,12 @@ function Jq_command(split)
   end, { buffer = jq_bufnr })
 end
 
-ucmd("Jq", function()
-  Jq_command("vh")
-end, {})
-ucmd("JqV", function()
-  Jq_command("h")
-end, {})
-
-ucmd("JqH", function()
-  Jq_command("v")
-end, {})
-
-ucmd("Jq3H", function()
-  Jq_command("hv")
-end, {})
-ucmd("Jq3V", function()
-  Jq_command("vh")
-end, {})
+ucmd("Jq", function(opts)
+  Jq_command(opts.args)
+end, {
+  nargs = "?",
+  complete = function(ArgLead, CmdLine, CursorPos)
+    -- return completion candidates as a list-like table
+    return { "VH", "HV", "3H", "3V" }
+  end,
+})
