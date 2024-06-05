@@ -7,18 +7,44 @@
 ```lua
 -- with lazy.nvim:
 {
-    "jrop/jq.nvim",
-    config = true,
+  "jrop/jq.nvim",
+  config = true, -- use default configuration
 }
 ```
-
-## Setup
 
 If you use another package manager than lazy.nvim, make sure to run the setup
 function to register the `:Jq` command:
 
 ```lua
+-- use default configuration
 require("jq").setup()
+```
+
+## Configuration
+
+There are options available for position the different windows. The following
+configuration items are available:
+
+| Key | Values | Default | Info |
+| --- | ------ | ------- | ---- |
+| `output_window.split_direction` | 'left', 'right', 'above', 'below' | 'right' | Relative to input JSON window |
+| `output_window.width`           | number | `nil` | < 1: percentage of current window, > 1 number of chars |
+| `output_window.height`          | number | `nil` | < 1: percentage of current window, > 1 number of lines |
+| `query_window.split_direction`  | 'left', 'right', 'above', 'below' | 'below | Relative to output JSON window |
+| `query_window.width`            | number | `nil` | < 1: percentage of current window, > 1 number of chars |
+| `query_window.height`           | number | `0.3` | < 1: percentage of current window, > 1 number of lines |
+
+Example configuration to get the old layout (3 vertical splits):
+
+```lua
+require('jq').setup({
+  output_window = {
+    split_direction = 'right',
+  },
+  query_window = {
+    split_direction = 'left',
+  },
+})
 ```
 
 ## Use
@@ -29,9 +55,8 @@ Simply press `<CR>` (enter) in the filter window to refresh the results buffer.
 
 ## Tips
 
-The `:Jq` command sets up its own buffer that houses the JQ filter additionally
-setting up the keymap necessary to refresh the results buffer. If you have a
-saved filter that you want to load into the filter window, then run:
+If you have a saved filter that you want to load into the filter window, then
+run:
 
 ```
 :r /path/to/some/query.jq

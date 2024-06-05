@@ -41,14 +41,33 @@ local function run_query(input_bufnr, query_bufnr, output_bufnr)
   vim.api.nvim_buf_set_lines(output_bufnr, 0, -1, false, lines)
 end
 
-local function create_query_buffer()
+
+local function create_split(bufnr, winopts)
+  local width = winopts.width
+  local height = winopts.height
+
+  if height ~= nil and height < 1 then
+    height = math.floor(height * vim.api.nvim_win_get_height(0))
+  end
+
+  if width ~= nil and width < 1 then
+    width = math.floor(width * vim.api.nvim_win_get_width(0))
+  end
+
+  local winid = vim.api.nvim_open_win(bufnr, true, {
+    split = winopts.split_direction,
+    width = width,
+    height = height,
+  })
+
+  return winid
+end
+
+local function create_query_buffer(winopts)
   -- creates scratch (:h scratch-buffer) buffer
   local bufnr = vim.api.nvim_create_buf(false, true)
 
-  local winid = vim.api.nvim_open_win(bufnr, true, {
-    split = 'below',
-    height = math.floor(0.3 * vim.api.nvim_win_get_height(0)),
-  })
+  local winid = create_split(bufnr, winopts)
 
   vim.bo[bufnr].filetype = 'jq'
   vim.api.nvim_buf_set_name(bufnr, 'jq query editor')
@@ -64,12 +83,11 @@ local function create_query_buffer()
   return bufnr
 end
 
-local function create_output_buffer()
+local function create_output_buffer(winopts)
   -- creates scratch (:h scratch-buffer) buffer
   local bufnr = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_open_win(bufnr, true, {
-    split = 'right',
-  })
+
+  create_split(bufnr, winopts)
 
   vim.bo[bufnr].filetype = 'json'
   vim.api.nvim_buf_set_name(bufnr, 'jq output')
@@ -80,8 +98,8 @@ end
 local function start_jq_buffers(opts)
   local input_json_bufnr = vim.api.nvim_get_current_buf()
 
-  local output_json_bufnr = create_output_buffer()
-  local query_bufnr = create_query_buffer()
+  local output_json_bufnr = create_output_buffer(opts.output_window)
+  local query_bufnr = create_query_buffer(opts.query_window)
 
   vim.keymap.set('n', '<CR>', function()
     run_query(input_json_bufnr, query_bufnr, output_json_bufnr)
@@ -93,8 +111,40 @@ local function start_jq_buffers(opts)
 end
 
 function M.setup(opts)
+  local defaults = {
+    output_window = {
+      split_direction = 'right',
+      width = nil,
+      height = nil,
+    },
+    query_window = {
+      split_direction = 'below',
+      width = nil,
+      height = 0.3,
+    }
+  }
+
+  -- overwrite default options
+  local options = vim.tbl_extend("force", defaults, opts)
+
   vim.api.nvim_create_user_command('Jq', function()
-    start_jq_buffers(opts)
+    start_jq_buffers(options)
+  end, { desc = 'Start jq query editor and live preview' })
+
+  -- for backwards compatibility
+  vim.api.nvim_create_user_command('Jqhorizontal', function()
+    start_jq_buffers({
+      output_window = {
+        split_direction = 'below',
+        width = nil,
+        height = nil,
+      },
+      query_window = {
+        split_direction = 'above',
+        width = nil,
+        height = nil,
+      }
+    })
   end, { desc = 'Start jq query editor and live preview' })
 end
 
