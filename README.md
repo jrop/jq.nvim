@@ -28,11 +28,11 @@ configuration items are available:
 | Key | Values | Default | Info |
 | --- | ------ | ------- | ---- |
 | `output_window.split_direction` | 'left', 'right', 'above', 'below' | 'right' | Relative to input JSON window |
-| `output_window.width`           | number | `nil` | < 1: percentage of current window, > 1 number of chars |
-| `output_window.height`          | number | `nil` | < 1: percentage of current window, > 1 number of lines |
+| `output_window.width`           | number | `nil` | nil: half, < 1: percentage of current window, > 1: number of chars |
+| `output_window.height`          | number | `nil` | nil: half, < 1: percentage of current window, > 1: number of lines |
 | `query_window.split_direction`  | 'left', 'right', 'above', 'below' | 'below | Relative to output JSON window |
-| `query_window.width`            | number | `nil` | < 1: percentage of current window, > 1 number of chars |
-| `query_window.height`           | number | `0.3` | < 1: percentage of current window, > 1 number of lines |
+| `query_window.width`            | number | `nil` | nil: half, < 1: percentage of current window, > 1: number of chars |
+| `query_window.height`           | number | `0.3` | nil: half, < 1: percentage of current window, > 1: number of lines |
 
 Example configuration to get the old layout (3 vertical splits):
 
