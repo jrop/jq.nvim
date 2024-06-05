@@ -1,8 +1,18 @@
+local function user_preferred_indent(json_bufnr)
+  local prefer_tabs = not vim.bo[json_bufnr].expandtab
+  if prefer_tabs then
+    return '--tab'
+  else
+    local indent_width = vim.bo[json_bufnr].softtabstop
+    return '--indent' .. indent_width
+  end
+end
+
 local function run_query(input_bufnr, query_bufnr, output_bufnr)
   local filter_lines = vim.api.nvim_buf_get_lines(query_bufnr, 0, -1, false)
   local filter = table.concat(filter_lines, '\n')
 
-  local cmd = { 'jq', filter }
+  local cmd = { 'jq', filter, user_preferred_indent(output_bufnr) }
   local stdin = nil
 
   local modified = vim.bo[input_bufnr].modified
