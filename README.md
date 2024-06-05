@@ -2,6 +2,8 @@
 
 > Interact with `jq` in Vim, using interactive buffers
 
+![Example screenshot](example/screenshot.png)
+
 ## Installation
 
 ```lua
