@@ -28,10 +28,16 @@ local function run_query(input_bufnr, query_bufnr, output_bufnr)
     stdin = vim.api.nvim_buf_get_lines(input_bufnr, 0, -1, false)
   end
 
-  local result = vim.system(cmd, { stdin = stdin }):wait()
+  local ok, process = pcall(vim.system, cmd, { stdin = stdin })
 
-  -- TODO work with wrong output
-  local lines = vim.split(result.stdout, '\n', { plain = true })
+  if not ok then
+    error('jq is not installed or not on your $PATH')
+  end
+
+  local result = process:wait()
+  local output = result.code == 0 and result.stdout or result.stderr
+
+  local lines = vim.split(output, '\n', { plain = true })
   vim.api.nvim_buf_set_lines(output_bufnr, 0, -1, false, lines)
 end
 
