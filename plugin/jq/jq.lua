@@ -33,7 +33,7 @@ local function run_query(input_bufnr, query_bufnr, output_bufnr)
   vim.api.nvim_buf_set_lines(output_bufnr, 0, -1, false, lines)
 end
 
-local function setup_query_buffer()
+local function create_query_buffer()
   -- creates scratch (:h scratch-buffer) buffer
   local bufnr = vim.api.nvim_create_buf(false, true)
 
@@ -56,7 +56,7 @@ local function setup_query_buffer()
   return bufnr
 end
 
-local function setup_output_buffer()
+local function create_output_buffer()
   -- creates scratch (:h scratch-buffer) buffer
   local bufnr = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_open_win(bufnr, true, {
@@ -69,25 +69,23 @@ local function setup_output_buffer()
   return bufnr
 end
 
-local function setup_jq_buffers(opts)
+local function start_jq_buffers(opts)
   local input_json_bufnr = vim.api.nvim_get_current_buf()
 
-  local output_json_bufnr = setup_output_buffer()
-  local query_bufnr = setup_query_buffer()
+  local output_json_bufnr = create_output_buffer()
+  local query_bufnr = create_query_buffer()
 
   vim.keymap.set('n', '<CR>', function()
     run_query(input_json_bufnr, query_bufnr, output_json_bufnr)
   end, {
     buffer = query_bufnr,
     silent = true,
-    desc = 'jq.nvim: run current jq query'
+    desc = 'Run current jq query'
   })
 end
 
-vim.api.nvim_create_user_command('Jq', function()
-  setup_jq_buffers({})
-end, {})
-
-vim.api.nvim_create_user_command('Jqhorizontal', function()
-  setup_jq_buffers({})
-end, {})
+local function setup(opts)
+  vim.api.nvim_create_user_command('Jq', function()
+    start_jq_buffers(opts)
+  end, { desc = 'Start jq query editor and live preview' })
+end
