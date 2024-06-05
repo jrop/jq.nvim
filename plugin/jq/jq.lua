@@ -1,19 +1,19 @@
 local kmap = vim.keymap.set
 local ucmd = vim.api.nvim_create_user_command
 
-function buf_text(bufnr)
+local function buf_text(bufnr)
   if bufnr == nil then
     bufnr = vim.api.nvim_win_get_buf(0)
   end
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, vim.api.nvim_buf_line_count(bufnr), true)
   local text = ''
-  for i, line in ipairs(lines) do
+  for _, line in ipairs(lines) do
     text = text .. line .. '\n'
   end
   return text
 end
 
-function set_buf_text(text, bufnr)
+local function set_buf_text(text, bufnr)
   if bufnr == nil then
     bufnr = vim.fn.bufnr('%')
   end
@@ -31,21 +31,21 @@ function set_buf_text(text, bufnr)
   )
 end
 
-function jq_filter(json_bufnr, jq_filter)
+local function jq_filter(json_bufnr, filter)
   -- spawn jq and pipe in json, returning the output text
   local modified = vim.bo[json_bufnr].modified
   local fname = vim.fn.bufname(json_bufnr)
 
   if (not modified) and fname ~= '' then
     -- the following should be faster as it lets jq read the file contents
-    return vim.fn.system({ 'jq', jq_filter, fname })
+    return vim.fn.system({ 'jq', filter, fname })
   else
     local json = buf_text(json_bufnr)
-    return vim.fn.system({ 'jq', jq_filter }, json)
+    return vim.fn.system({ 'jq', filter }, json)
   end
 end
 
-function Jq_command(horizontal)
+local function Jq_command(horizontal)
   local splitcmd = 'vnew'
   if horizontal == true then
     splitcmd = 'new'
