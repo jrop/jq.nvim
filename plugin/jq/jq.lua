@@ -1,6 +1,3 @@
-local kmap = vim.keymap.set
-local ucmd = vim.api.nvim_create_user_command
-
 local function buf_text(bufnr)
   if bufnr == nil then
     bufnr = vim.api.nvim_win_get_buf(0)
@@ -56,7 +53,7 @@ local function Jq_command(horizontal)
   vim.cmd(splitcmd)
   vim.o.filetype = 'jq'
   set_buf_text('# JQ filter: press <CR> to execute it\n\n.')
-  vim.cmd'normal!G'
+  vim.cmd 'normal!G'
   local jq_bufnr = vim.fn.bufnr()
   local jq_winnr = vim.fn.bufwinid(jq_bufnr)
 
@@ -68,10 +65,7 @@ local function Jq_command(horizontal)
   vim.fn.win_gotoid(jq_winnr)
 
   -- setup keybinding autocmd in the filter buffer:
-  kmap(
-    'n',
-    '<CR>',
-    function()
+  vim.keymap.set('n', '<CR>', function()
       local filter = buf_text(jq_bufnr)
       set_buf_text(jq_filter(json_bufnr, filter), result_bufnr)
     end,
@@ -79,10 +73,10 @@ local function Jq_command(horizontal)
   )
 end
 
-ucmd('Jq', function()
+vim.api.nvim_create_user_command('Jq', function()
   Jq_command(false)
 end, {})
 
-ucmd('Jqhorizontal', function()
+vim.api.nvim_create_user_command('Jqhorizontal', function()
   Jq_command(true)
 end, {})
