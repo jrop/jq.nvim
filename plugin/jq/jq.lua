@@ -1,82 +1,83 @@
-local function buf_text(bufnr)
-  if bufnr == nil then
-    bufnr = vim.api.nvim_win_get_buf(0)
-  end
-  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, vim.api.nvim_buf_line_count(bufnr), true)
-  local text = ''
-  for _, line in ipairs(lines) do
-    text = text .. line .. '\n'
-  end
-  return text
-end
+local function run_query(input_bufnr, query_bufnr, output_bufnr)
+  local filter_lines = vim.api.nvim_buf_get_lines(query_bufnr, 0, -1, false)
+  local filter = table.concat(filter_lines, '\n')
 
-local function set_buf_text(text, bufnr)
-  if bufnr == nil then
-    bufnr = vim.fn.bufnr('%')
-  end
+  local cmd = { 'jq', filter }
+  local stdin = nil
 
-  if type(text) == 'string' then
-    text = vim.fn.split(text, '\n')
-  end
+  local modified = vim.bo[input_bufnr].modified
+  local fname = vim.api.nvim_buf_get_name(input_bufnr)
 
-  vim.api.nvim_buf_set_lines(
-    bufnr,
-    0,
-    -1,
-    false,
-    text
-  )
-end
-
-local function jq_filter(json_bufnr, filter)
-  -- spawn jq and pipe in json, returning the output text
-  local modified = vim.bo[json_bufnr].modified
-  local fname = vim.fn.bufname(json_bufnr)
-
+  -- TODO: check if file actually exists?
   if (not modified) and fname ~= '' then
     -- the following should be faster as it lets jq read the file contents
-    return vim.fn.system({ 'jq', filter, fname })
+    table.insert(cmd, fname)
   else
-    local json = buf_text(json_bufnr)
-    return vim.fn.system({ 'jq', filter }, json)
+    stdin = vim.api.nvim_buf_get_lines(input_bufnr, 0, -1, false)
   end
+
+  local result = vim.system(cmd, { stdin = stdin }):wait()
+
+  -- TODO work with wrong output
+  local lines = vim.split(result.stdout, '\n', { plain = true })
+  vim.api.nvim_buf_set_lines(output_bufnr, 0, -1, false, lines)
 end
 
-local function Jq_command(horizontal)
-  local splitcmd = 'vnew'
-  if horizontal == true then
-    splitcmd = 'new'
-  end
+local function setup_query_buffer()
+  -- creates scratch (:h scratch-buffer) buffer
+  local bufnr = vim.api.nvim_create_buf(false, true)
 
-  local json_bufnr = vim.fn.bufnr()
+  local winid = vim.api.nvim_open_win(bufnr, true, {
+    split = 'below',
+    height = math.floor(0.3 * vim.api.nvim_win_get_height(0)),
+  })
 
-  vim.cmd(splitcmd)
-  vim.o.filetype = 'jq'
-  set_buf_text('# JQ filter: press <CR> to execute it\n\n.')
-  vim.cmd 'normal!G'
-  local jq_bufnr = vim.fn.bufnr()
-  local jq_winnr = vim.fn.bufwinid(jq_bufnr)
+  vim.bo[bufnr].filetype = 'jq'
+  vim.api.nvim_buf_set_name(bufnr, 'jq query editor')
+  vim.cmd.startinsert()
 
-  vim.cmd(splitcmd)
-  vim.o.filetype = 'json'
-  local result_bufnr = vim.fn.bufnr()
+  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, {
+    '# JQ filter: press <CR> in normal mode to execute.',
+    '',
+    '',
+  })
+  vim.api.nvim_win_set_cursor(winid, { 3, 0 })
 
+  return bufnr
+end
 
-  vim.fn.win_gotoid(jq_winnr)
+local function setup_output_buffer()
+  -- creates scratch (:h scratch-buffer) buffer
+  local bufnr = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_open_win(bufnr, true, {
+    split = 'right',
+  })
 
-  -- setup keybinding autocmd in the filter buffer:
+  vim.bo[bufnr].filetype = 'json'
+  vim.api.nvim_buf_set_name(bufnr, 'jq output')
+
+  return bufnr
+end
+
+local function setup_jq_buffers(opts)
+  local input_json_bufnr = vim.api.nvim_get_current_buf()
+
+  local output_json_bufnr = setup_output_buffer()
+  local query_bufnr = setup_query_buffer()
+
   vim.keymap.set('n', '<CR>', function()
-      local filter = buf_text(jq_bufnr)
-      set_buf_text(jq_filter(json_bufnr, filter), result_bufnr)
-    end,
-    { buffer = jq_bufnr }
-  )
+    run_query(input_json_bufnr, query_bufnr, output_json_bufnr)
+  end, {
+    buffer = query_bufnr,
+    silent = true,
+    desc = 'jq.nvim: run current jq query'
+  })
 end
 
 vim.api.nvim_create_user_command('Jq', function()
-  Jq_command(false)
+  setup_jq_buffers({})
 end, {})
 
 vim.api.nvim_create_user_command('Jqhorizontal', function()
-  Jq_command(true)
+  setup_jq_buffers({})
 end, {})
