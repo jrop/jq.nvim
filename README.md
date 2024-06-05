@@ -6,8 +6,9 @@
 
 ## Installation
 
+With lazy.nvim:
+
 ```lua
--- with lazy.nvim:
 {
   "jrop/jq.nvim",
   config = true, -- use default configuration
@@ -24,19 +25,43 @@ require("jq").setup()
 
 ## Configuration
 
-There are options available for position the different windows. The following
-configuration items are available:
+There are options available for positioning the different windows. These are
+the defaults:
 
-| Key | Values | Default | Info |
-| --- | ------ | ------- | ---- |
-| `output_window.split_direction` | 'left', 'right', 'above', 'below' | 'right' | Relative to input JSON window |
-| `output_window.width`           | number | `nil` | nil: half, < 1: percentage of current window, > 1: number of chars |
-| `output_window.height`          | number | `nil` | nil: half, < 1: percentage of current window, > 1: number of lines |
-| `query_window.split_direction`  | 'left', 'right', 'above', 'below' | 'below | Relative to output JSON window |
-| `query_window.width`            | number | `nil` | nil: half, < 1: percentage of current window, > 1: number of chars |
-| `query_window.height`           | number | `0.3` | nil: half, < 1: percentage of current window, > 1: number of lines |
+```lua
+require('jq').setup({
+  output_window = {
+    split_direction = 'right',
+    width = nil,
+    height = nil,
+  },
+  query_window = {
+    split_direction = 'bottom',
+    width = nil,
+    height = 0.3,
+  },
+})
+```
 
-Example configuration to get the old layout (3 vertical splits):
+The `split_direction` can be `'left'`, `'right'`, `'above'` or `'below'`. The
+split direction of the output window is relative to the input window, and the
+query window is relative to the output window.
+
+The `width` and `height` values can be nil, meaning half of the current
+width/height, a decimal number under 1, being the percentage of the current
+width/height or a number above 1, being the absolute width/height in characters
+or lines.
+
+
+## Use
+
+Navigate to a JSON file, and execute the command `:Jq`. Two scratch buffers
+will be opened: a buffer for the JQ-filter and one for displaying the results.
+Simply press `<CR>` (enter) in the filter window to refresh the results buffer.
+
+## Tips
+
+If you want the old layout (3 vertical splits), use the following setup:
 
 ```lua
 require('jq').setup({
@@ -48,14 +73,6 @@ require('jq').setup({
   },
 })
 ```
-
-## Use
-
-Navigate to a JSON file, and execute the command `:Jq`. Two scratch buffers
-will be opened: a buffer for the JQ-filter and one for displaying the results.
-Simply press `<CR>` (enter) in the filter window to refresh the results buffer.
-
-## Tips
 
 If you have a saved filter that you want to load into the filter window, then
 run:
