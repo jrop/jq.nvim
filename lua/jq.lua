@@ -1,3 +1,5 @@
+local M = {}
+
 local function user_preferred_indent(json_bufnr)
   local prefer_tabs = not vim.bo[json_bufnr].expandtab
   if prefer_tabs then
@@ -84,8 +86,10 @@ local function start_jq_buffers(opts)
   })
 end
 
-local function setup(opts)
+function M.setup(opts)
   vim.api.nvim_create_user_command('Jq', function()
     start_jq_buffers(opts)
   end, { desc = 'Start jq query editor and live preview' })
 end
+
+return M
