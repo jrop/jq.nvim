@@ -4,7 +4,7 @@
 
 ![Example screenshot](example/screenshot.png)
 
-Like Neovims builtin Treesitter playground
+Like jqplay.org or Neovims builtin Treesitter playground
 ([`:InspectTree`](https://neovim.io/doc/user/treesitter.html#%3AInspectTree)).
 
 ## Installation
