@@ -1,6 +1,6 @@
 # jq-playground.nvim
 
-> Interact with `jq` in Vim, using interactive buffers
+> Interact with jq in Neovim, using interactive buffers
 
 ![Example screenshot](example/screenshot.png)
 
