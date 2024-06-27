@@ -2,31 +2,101 @@
 
 > Interact with `jq` in Vim, using interactive buffers
 
+![Example screenshot](example/screenshot.png)
+
 ## Installation
 
+With lazy.nvim:
+
 ```lua
-use 'jrop/jq.nvim'
+{
+  "jrop/jq.nvim",
+  config = true, -- use default configuration
+}
 ```
+
+If you use another package manager than lazy.nvim, make sure to run the setup
+function to register the `:Jq` command:
+
+```lua
+-- use default configuration
+require("jq").setup()
+```
+
+## Configuration
+
+There are options available for positioning the different windows. These are
+the defaults:
+
+```lua
+require('jq').setup({
+  output_window = {
+    split_direction = 'right',
+    width = nil,
+    height = nil,
+  },
+  query_window = {
+    split_direction = 'bottom',
+    width = nil,
+    height = 0.3,
+  },
+})
+```
+
+The `split_direction` can be `'left'`, `'right'`, `'above'` or `'below'`. The
+split direction of the output window is relative to the input window, and the
+query window is relative to the output window.
+
+The `width` and `height` values can be nil, meaning half of the current
+width/height, a decimal number under 1, being the percentage of the current
+width/height or a number above 1, being the absolute width/height in characters
+or lines.
+
 
 ## Use
 
-Navigate to a JSON file, and execute the command `:Jq`. Two vertical buffers
-will be opened: the first is the JQ-filter, and the third is for displaying
-results. Simply press `<CR>` (enter) in the filter window to refresh the results
-buffer. If you like horizontal splits instead of vertical ones, the use
-`:Jqhorizontal`.
+Navigate to a JSON file, and execute the command `:Jq`. Two scratch buffers
+will be opened: a buffer for the JQ-filter and one for displaying the results.
+Simply press `<CR>` (enter) in the filter window to refresh the results buffer.
 
-**Tips**: The `:Jq` command sets up its own buffer that houses the JQ filter
-additionally setting up the keymap necessary to refresh the results buffer. If
-you have a saved filter that you want to load into the filter window, then run:
+## Tips
+
+If you want the old layout (3 vertical splits), use the following setup:
+
+```lua
+require('jq').setup({
+  output_window = {
+    split_direction = 'right',
+  },
+  query_window = {
+    split_direction = 'left',
+  },
+})
+```
+
+If you have a saved filter that you want to load into the filter window, then
+run:
 
 ```
 :r /path/to/some/query.jq
 ```
 
+If you want to save the current query or output json, navigate to that buffer
+and run:
+
+```
+:w /path/to/save/{query.jq,output.json}
+```
+
+If you want to use a keymap instead of the `:Jq` command, use this:
+
+```lua
+vim.keymap.set('n', '<leader>jq', vim.cmd.Jq)
+```
+
 ## Dependencies
 
-- `jq` Must be installed and in your `$PATH`
+- `jq` Must be installed and in your `$PATH`.
 
 ## License (MIT)
 
