@@ -127,25 +127,13 @@ function M.setup(opts)
   -- overwrite default options
   local options = vim.tbl_extend("force", defaults, opts)
 
-  vim.api.nvim_create_user_command('Jq', function()
+  vim.api.nvim_create_user_command('JqPlayground', function(params)
+    options['filename'] = params.fargs[1]
     start_jq_buffers(options)
-  end, { desc = 'Start jq query editor and live preview' })
-
-  -- for backwards compatibility
-  vim.api.nvim_create_user_command('Jqhorizontal', function()
-    start_jq_buffers({
-      output_window = {
-        split_direction = 'below',
-        width = nil,
-        height = nil,
-      },
-      query_window = {
-        split_direction = 'above',
-        width = nil,
-        height = nil,
-      }
-    })
-  end, { desc = 'Start jq query editor and live preview' })
+  end, {
+    desc = 'Start jq query editor and live preview',
+    nargs = '?',
+  })
 end
 
 return M

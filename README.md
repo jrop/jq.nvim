@@ -1,8 +1,11 @@
-# jq.nvim
+# jq-playground.nvim
 
 > Interact with `jq` in Vim, using interactive buffers
 
 ![Example screenshot](example/screenshot.png)
+
+Like Neovims builtin Treesitter playground
+([`:InspectTree`](https://neovim.io/doc/user/treesitter.html#%3AInspectTree)).
 
 ## Installation
 
@@ -10,17 +13,17 @@ With lazy.nvim:
 
 ```lua
 {
-  "jrop/jq.nvim",
+  "yochem/jq-playground.nvim",
   config = true, -- use default configuration
 }
 ```
 
 If you use another package manager than lazy.nvim, make sure to run the setup
-function to register the `:Jq` command:
+function to register the `:JqPlayground` command:
 
 ```lua
 -- use default configuration
-require("jq").setup()
+require("jq-playground").setup()
 ```
 
 ## Configuration
@@ -29,21 +32,21 @@ There are options available for positioning the different windows. These are
 the defaults:
 
 ```lua
-require('jq').setup({
+require("jq-playground").setup({
   output_window = {
-    split_direction = 'right',
+    split_direction = "right",
     width = nil,
     height = nil,
   },
   query_window = {
-    split_direction = 'bottom',
+    split_direction = "bottom",
     width = nil,
     height = 0.3,
   },
 })
 ```
 
-The `split_direction` can be `'left'`, `'right'`, `'above'` or `'below'`. The
+The `split_direction` can be `"left"`, `"right"`, `"above"` or `"below"`. The
 split direction of the output window is relative to the input window, and the
 query window is relative to the output window.
 
@@ -55,24 +58,12 @@ or lines.
 
 ## Use
 
-Navigate to a JSON file, and execute the command `:Jq`. Two scratch buffers
-will be opened: a buffer for the JQ-filter and one for displaying the results.
-Simply press `<CR>` (enter) in the filter window to refresh the results buffer.
+Navigate to a JSON file, and execute the command `:JqPlayground`. Two scratch
+buffers will be opened: a buffer for the JQ-filter and one for displaying the
+results. Simply press `<CR>` (enter) in the filter window to refresh the
+results buffer.
 
 ## Tips
-
-If you want the old layout (3 vertical splits), use the following setup:
-
-```lua
-require('jq').setup({
-  output_window = {
-    split_direction = 'right',
-  },
-  query_window = {
-    split_direction = 'left',
-  },
-})
-```
 
 If you have a saved filter that you want to load into the filter window, then
 run:
@@ -88,10 +79,10 @@ and run:
 :w /path/to/save/{query.jq,output.json}
 ```
 
-If you want to use a keymap instead of the `:Jq` command, use this:
+If you want to use a keymap instead of the `:JqPlayground` command, use this:
 
 ```lua
-vim.keymap.set('n', '<leader>jq', vim.cmd.Jq)
+vim.keymap.set('n', '<leader>jq', vim.cmd.JqPlayground)
 ```
 
 ## Dependencies
