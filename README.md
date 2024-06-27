@@ -63,6 +63,13 @@ buffers will be opened: a buffer for the JQ-filter and one for displaying the
 results. Simply press `<CR>` (enter) in the filter window to refresh the
 results buffer.
 
+You can also provide a filename to the `:JqPlayground` command. This is useful
+if the JSON file is very large and slows Neovim down.
+
+```
+:JqPlayground sample.json
+```
+
 ## Tips
 
 If you have a saved filter that you want to load into the filter window, then

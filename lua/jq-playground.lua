@@ -10,22 +10,28 @@ local function user_preferred_indent(json_bufnr)
   end
 end
 
-local function run_query(input_bufnr, query_bufnr, output_bufnr)
+local function run_query(input, query_bufnr, output_bufnr)
   local filter_lines = vim.api.nvim_buf_get_lines(query_bufnr, 0, -1, false)
   local filter = table.concat(filter_lines, "\n")
 
   local cmd = { "jq", filter, user_preferred_indent(output_bufnr) }
   local stdin = nil
 
-  local modified = vim.bo[input_bufnr].modified
-  local fname = vim.api.nvim_buf_get_name(input_bufnr)
+  if type(input) == "number" and vim.api.nvim_buf_is_valid(input) then
+    local modified = vim.bo[input].modified
+    local fname = vim.api.nvim_buf_get_name(input)
 
-  -- TODO: check if file actually exists?
-  if (not modified) and fname ~= "" then
-    -- the following should be faster as it lets jq read the file contents
-    table.insert(cmd, fname)
+    -- TODO: check if file actually exists?
+    if (not modified) and fname ~= "" then
+      -- the following should be faster as it lets jq read the file contents
+      table.insert(cmd, fname)
+    else
+      stdin = vim.api.nvim_buf_get_lines(input, 0, -1, false)
+    end
+  elseif type(input) == "string" and vim.fn.filereadable(input) == 1 then
+    table.insert(cmd, input)
   else
-    stdin = vim.api.nvim_buf_get_lines(input_bufnr, 0, -1, false)
+    error("invalid input: " .. input)
   end
 
   local ok, process = pcall(vim.system, cmd, { stdin = stdin })
@@ -101,7 +107,7 @@ local function start_jq_buffers(opts)
   local query_bufnr = create_query_buffer(opts.query_window)
 
   vim.keymap.set("n", "<CR>", function()
-    run_query(input_json_bufnr, query_bufnr, output_json_bufnr)
+    run_query(opts.filename or input_json_bufnr, query_bufnr, output_json_bufnr)
   end, {
     buffer = query_bufnr,
     silent = true,
@@ -133,6 +139,7 @@ function M.setup(opts)
   end, {
     desc = "Start jq query editor and live preview",
     nargs = "?",
+    complete = "file",
   })
 end
 
