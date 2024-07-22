@@ -7,14 +7,14 @@
 Like jqplay.org or Neovims builtin Treesitter playground
 ([`:InspectTree`](https://neovim.io/doc/user/treesitter.html#%3AInspectTree)).
 
-## Installation
+## Setup
 
-With lazy.nvim:
+Using the default configuration with lazy.nvim as package manager:
 
 ```lua
 {
   "yochem/jq-playground.nvim",
-  config = true, -- use default configuration
+  config = true,
 }
 ```
 
@@ -22,14 +22,13 @@ If you use another package manager than lazy.nvim, make sure to run the setup
 function to register the `:JqPlayground` command:
 
 ```lua
--- use default configuration
 require("jq-playground").setup()
 ```
 
 ## Configuration
 
-There are options available for positioning the different windows. These are
-the defaults:
+There are options available for defining the window layout. These are the
+options, along with their defaults:
 
 ```lua
 require("jq-playground").setup({
@@ -46,17 +45,15 @@ require("jq-playground").setup({
 })
 ```
 
-The `split_direction` can be `"left"`, `"right"`, `"above"` or `"below"`. The
-split direction of the output window is relative to the input window, and the
-query window is relative to the output window.
+- `split_direction`: can be `"left"`, `"right"`, `"above"` or `"below"`. The
+  split direction of the output window is relative to the input window, and the
+  query window is relative to the output window.
+- `width` and `height`:
+  - `nil`: use the default (half of current width/height)
+  - `0-1`: percentage of current width/height
+  - `>1`: absolute width/height in number of characters or lines
 
-The `width` and `height` values can be nil, meaning half of the current
-width/height, a decimal number under 1, being the percentage of the current
-width/height or a number above 1, being the absolute width/height in characters
-or lines.
-
-
-## Use
+## `:JqPlayground`
 
 Navigate to a JSON file, and execute the command `:JqPlayground`. Two scratch
 buffers will be opened: a buffer for the JQ-filter and one for displaying the
@@ -64,7 +61,7 @@ results. Simply press `<CR>` (enter) in the filter window to refresh the
 results buffer.
 
 You can also provide a filename to the `:JqPlayground` command. This is useful
-if the JSON file is very large and slows Neovim down.
+if the JSON file is very large and slows Neovim down:
 
 ```
 :JqPlayground sample.json
@@ -91,29 +88,3 @@ If you want to use a keymap instead of the `:JqPlayground` command, use this:
 ```lua
 vim.keymap.set('n', '<leader>jq', vim.cmd.JqPlayground)
 ```
-
-## Dependencies
-
-- `jq` Must be installed and in your `$PATH`.
-
-## License (MIT)
-
-The MIT License (MIT)
-Copyright © 2022 Jonathan Apodaca <jrapodaca@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the “Software”), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
