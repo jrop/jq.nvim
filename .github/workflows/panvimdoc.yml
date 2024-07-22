@@ -16,7 +16,7 @@ jobs:
     name: pandoc to vimdoc
     steps:
       - uses: actions/checkout@v4
-      - uses: kdheepak/panvimdoc@v4
+      - uses: kdheepak/panvimdoc@main
         with:
           vimdoc: jq-playground
       - uses: stefanzweifel/git-auto-commit-action@v5
