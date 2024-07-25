@@ -61,7 +61,8 @@ results. Simply press `<CR>` (enter) in the filter window to refresh the
 results buffer.
 
 You can also provide a filename to the `:JqPlayground` command. This is useful
-if the JSON file is very large and slows Neovim down:
+if the JSON file is very large and you don't want to open it in Neovim
+directly:
 
 ```
 :JqPlayground sample.json
@@ -87,4 +88,10 @@ If you want to use a keymap instead of the `:JqPlayground` command, use this:
 
 ```lua
 vim.keymap.set('n', '<leader>jq', vim.cmd.JqPlayground)
+```
+
+Start the JQ editor from the command line without loading the input file:
+
+```
+$ nvim +'JqPlayground input.json'
 ```
