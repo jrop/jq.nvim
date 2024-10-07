@@ -129,7 +129,7 @@ function M.setup(opts)
   }
 
   -- overwrite default options
-  local options = vim.tbl_extend("force", defaults, opts)
+  local options = vim.tbl_deep_extend("force", defaults, opts)
 
   vim.api.nvim_create_user_command("JqPlayground", function(params)
     -- also possible to use jq-playground without a source buffer
