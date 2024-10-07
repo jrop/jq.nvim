@@ -15,10 +15,11 @@ Using the default configuration with
 ```lua
 {
   "yochem/jq-playground.nvim",
-  cmd = "JqPlayground", -- for lazy loading
-  opts = {}, -- default configuration
 }
-```
+
+This will lazy-load the plugin on `:JqPlayground`, as defined in the
+[packspec](https://github.com/neovim/packspec) (which Lazy supports) in this
+repo: [pkg.json](./pkg.json).
 
 If you use another package manager than lazy.nvim, make sure to run the setup
 function to register the `:JqPlayground` command:
