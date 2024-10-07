@@ -4,17 +4,19 @@
 
 ![Example screenshot](example/screenshot.png)
 
-Like jqplay.org or Neovims builtin Treesitter playground
+Like [jqplay.org](https://jqplay.org) or Neovims builtin Treesitter playground
 ([`:InspectTree`](https://neovim.io/doc/user/treesitter.html#%3AInspectTree)).
 
 ## Setup
 
-Using the default configuration with lazy.nvim as package manager:
+Using the default configuration with
+[lazy.nvim](https://github.com/folke/lazy.nvim) as package manager:
 
 ```lua
 {
   "yochem/jq-playground.nvim",
-  config = true,
+  cmd = "JqPlayground", -- for lazy loading
+  opts = {}, -- default configuration
 }
 ```
 
