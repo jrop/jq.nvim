@@ -3,18 +3,18 @@ local M = {}
 local function user_preferred_indent(json_bufnr)
   local prefer_tabs = not vim.bo[json_bufnr].expandtab
   if prefer_tabs then
-    return "--tab"
+    return { "--tab" }
   else
     local indent_width = vim.bo[json_bufnr].softtabstop
-    return "--indent" .. indent_width
+    return { "--indent", indent_width }
   end
 end
 
 local function run_query(input, query_bufnr, output_bufnr)
   local filter_lines = vim.api.nvim_buf_get_lines(query_bufnr, 0, -1, false)
   local filter = table.concat(filter_lines, "\n")
-
-  local cmd = { "jq", filter, user_preferred_indent(output_bufnr) }
+  local cmd = { "jq", filter }
+  vim.list_extend(cmd, user_preferred_indent(output_bufnr))
   local stdin = nil
 
   if type(input) == "number" and vim.api.nvim_buf_is_valid(input) then
@@ -33,7 +33,6 @@ local function run_query(input, query_bufnr, output_bufnr)
   else
     error("invalid input: " .. input)
   end
-
   local ok, process = pcall(vim.system, cmd, { stdin = stdin })
 
   if not ok then
