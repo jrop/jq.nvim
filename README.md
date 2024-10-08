@@ -16,6 +16,7 @@ Using the default configuration with
 {
   "yochem/jq-playground.nvim",
 }
+```
 
 This will lazy-load the plugin on `:JqPlayground`, as defined in the
 [packspec](https://github.com/neovim/packspec) (which Lazy supports) in this
