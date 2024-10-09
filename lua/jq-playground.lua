@@ -107,14 +107,14 @@ local function start_jq_buffers(opts)
 
   local run_jq_query = function()
     run_query(opts.filename or input_json_bufnr, query_bufnr, output_json_bufnr)
-  end;
+  end
   local run_jq_query_opts = {
     buffer = query_bufnr,
     silent = true,
     desc = "Run current jq query",
   }
   for _, mapping in ipairs(opts.query_keymaps) do
-    vim.keymap.set(mapping[1], mapping[2], run_jq_query, run_jq_query_opts);
+    vim.keymap.set(mapping[1], mapping[2], run_jq_query, run_jq_query_opts)
   end
 end
 
