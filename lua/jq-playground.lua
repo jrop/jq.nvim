@@ -1,5 +1,9 @@
 local M = {}
 
+local function show_error(msg)
+  vim.api.nvim_err_writeln("jq-playground: " .. msg)
+end
+
 local function user_preferred_indent(json_bufnr)
   local prefer_tabs = not vim.bo[json_bufnr].expandtab
   if prefer_tabs then
@@ -10,6 +14,7 @@ local function user_preferred_indent(json_bufnr)
   end
 end
 
+-- TODO: refactor
 local function run_query(input, query_bufnr, output_bufnr)
   local filter_lines = vim.api.nvim_buf_get_lines(query_bufnr, 0, -1, false)
   local filter = table.concat(filter_lines, "\n")
@@ -21,7 +26,6 @@ local function run_query(input, query_bufnr, output_bufnr)
     local modified = vim.bo[input].modified
     local fname = vim.api.nvim_buf_get_name(input)
 
-    -- TODO: check if file actually exists?
     if (not modified) and fname ~= "" then
       -- the following should be faster as it lets jq read the file contents
       table.insert(cmd, fname)
@@ -31,12 +35,13 @@ local function run_query(input, query_bufnr, output_bufnr)
   elseif type(input) == "string" and vim.fn.filereadable(input) == 1 then
     table.insert(cmd, input)
   else
-    error("invalid input: " .. input)
+    show_error("invalid input: " .. input)
   end
   local ok, process = pcall(vim.system, cmd, { stdin = stdin })
 
   if not ok then
-    error("jq is not installed or not on your $PATH")
+    show_error("jq is not installed or not on your $PATH")
+    return
   end
 
   local result = process:wait()
@@ -46,17 +51,23 @@ local function run_query(input, query_bufnr, output_bufnr)
   vim.api.nvim_buf_set_lines(output_bufnr, 0, -1, false, lines)
 end
 
-local function create_split(bufnr, winopts)
-  local width = winopts.width
-  local height = winopts.height
-
-  if height ~= nil and height < 1 then
-    height = math.floor(height * vim.api.nvim_win_get_height(0))
+local function resolve_winsize(num, max)
+  if num == nil or (1 <= num and num <= max) then
+    return num
+  elseif num < 1 then
+    return math.floor(num * max)
+  else
+    show_error(string.format("incorrect winsize, received %s of max %s", num, max))
   end
+end
 
-  if width ~= nil and width < 1 then
-    width = math.floor(width * vim.api.nvim_win_get_width(0))
-  end
+local function create_split_scratch_buf(bufopts, winopts)
+  local bufnr = vim.api.nvim_create_buf(false, true)
+  vim.bo[bufnr].filetype = bufopts.filetype
+  vim.api.nvim_buf_set_name(bufnr, bufopts.name)
+
+  local height = resolve_winsize(winopts.height, vim.api.nvim_win_get_height(0))
+  local width = resolve_winsize(winopts.width, vim.api.nvim_win_get_width(0))
 
   local winid = vim.api.nvim_open_win(bufnr, true, {
     split = winopts.split_direction,
@@ -64,46 +75,29 @@ local function create_split(bufnr, winopts)
     height = height,
   })
 
-  return winid
+  return bufnr, winid
 end
 
-local function create_query_buffer(winopts)
-  -- creates scratch (:h scratch-buffer) buffer
-  local bufnr = vim.api.nvim_create_buf(false, true)
+local function init_playground(opts)
+  local input_json_bufnr = vim.api.nvim_get_current_buf()
 
-  local winid = create_split(bufnr, winopts)
+  local output_json_bufnr, _ = create_split_scratch_buf({
+    name = "jq output",
+    filetype = "json"
+  }, opts.output_window)
 
-  vim.bo[bufnr].filetype = "jq"
-  vim.api.nvim_buf_set_name(bufnr, "jq query editor")
-  vim.cmd.startinsert()
+  local query_bufnr, winid = create_split_scratch_buf({
+    name = "jq query editor",
+    filetype = "jq",
+  }, opts.query_window)
 
-  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, {
+  vim.api.nvim_buf_set_lines(query_bufnr, 0, -1, false, {
     "# JQ filter: press set keymap (default <CR> in normal mode) to execute.",
     "",
     "",
   })
   vim.api.nvim_win_set_cursor(winid, { 3, 0 })
-
-  return bufnr
-end
-
-local function create_output_buffer(winopts)
-  -- creates scratch (:h scratch-buffer) buffer
-  local bufnr = vim.api.nvim_create_buf(false, true)
-
-  create_split(bufnr, winopts)
-
-  vim.bo[bufnr].filetype = "json"
-  vim.api.nvim_buf_set_name(bufnr, "jq output")
-
-  return bufnr
-end
-
-local function start_jq_buffers(opts)
-  local input_json_bufnr = vim.api.nvim_get_current_buf()
-
-  local output_json_bufnr = create_output_buffer(opts.output_window)
-  local query_bufnr = create_query_buffer(opts.query_window)
+  vim.cmd.startinsert()
 
   local run_jq_query = function()
     run_query(opts.filename or input_json_bufnr, query_bufnr, output_json_bufnr)
@@ -135,13 +129,11 @@ function M.setup(opts)
     },
   }
 
-  -- overwrite default options
   local options = vim.tbl_deep_extend("force", defaults, opts)
 
   vim.api.nvim_create_user_command("JqPlayground", function(params)
-    -- also possible to use jq-playground without a source buffer
     options["filename"] = params.fargs[1]
-    start_jq_buffers(options)
+    init_playground(options)
   end, {
     desc = "Start jq query editor and live preview",
     nargs = "?",
