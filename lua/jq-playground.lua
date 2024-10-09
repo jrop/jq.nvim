@@ -83,7 +83,7 @@ local function init_playground(opts)
 
   local output_json_bufnr, _ = create_split_scratch_buf({
     name = "jq output",
-    filetype = "json"
+    filetype = "json",
   }, opts.output_window)
 
   local query_bufnr, winid = create_split_scratch_buf({
@@ -125,7 +125,7 @@ function M.setup(opts)
       height = 0.3,
     },
     query_keymaps = {
-      { "n", "<CR>" }
+      { "n", "<CR>" },
     },
   }
 
