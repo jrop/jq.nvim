@@ -46,6 +46,9 @@ require("jq-playground").setup({
     width = nil,
     height = 0.3,
   },
+  query_keymaps = {
+    { "n", "<CR>" },
+  },
 })
 ```
 
@@ -56,12 +59,13 @@ require("jq-playground").setup({
   - `nil`: use the default (half of current width/height)
   - `0-1`: percentage of current width/height
   - `>1`: absolute width/height in number of characters or lines
+- `query_keymaps`: keymaps to refresh the output buffer. Should be given as a table of first two arguments for `vim.keymap.set`. Changing this setting will override the default keymap (<CR> in normal mode).
 
 ## `:JqPlayground`
 
 Navigate to a JSON file, and execute the command `:JqPlayground`. Two scratch
 buffers will be opened: a buffer for the JQ-filter and one for displaying the
-results. Simply press `<CR>` (enter) in the filter window to refresh the
+results. Simply press `<CR>` (enter), or your keymap from setup in the filter window to refresh the
 results buffer.
 
 You can also provide a filename to the `:JqPlayground` command. This is useful
