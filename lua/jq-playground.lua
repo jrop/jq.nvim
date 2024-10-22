@@ -1,7 +1,7 @@
 local M = {}
 
 local function show_error(msg)
-  vim.api.nvim_err_writeln("jq-playground: " .. msg)
+  vim.notify("jq-playground: " .. msg, vim.log.levels.ERROR, {})
 end
 
 local function user_preferred_indent(json_bufnr)
@@ -54,7 +54,7 @@ end
 local function resolve_winsize(num, max)
   if num == nil or (1 <= num and num <= max) then
     return num
-  elseif num < 1 then
+  elseif 0 < num and num < 1 then
     return math.floor(num * max)
   else
     show_error(string.format("incorrect winsize, received %s of max %s", num, max))
