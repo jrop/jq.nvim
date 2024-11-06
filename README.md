@@ -7,7 +7,8 @@
 Like [jqplay.org](https://jqplay.org) or Neovims builtin Treesitter playground
 ([`:InspectTree`](https://neovim.io/doc/user/treesitter.html#%3AInspectTree)).
 
-> [!NOTE] Using the `setup()` function is deprecated. To upgrade, set
+> [!NOTE]
+> Using the `setup()` function is deprecated. To upgrade, set
 > `vim.g.jq_playground` to your config. Read more about this in the
 > [Configuration](#configuration) section.
 
