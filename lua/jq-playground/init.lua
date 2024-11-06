@@ -78,7 +78,7 @@ local function create_split_scratch_buf(bufopts, winopts)
   return bufnr, winid
 end
 
-local function init_playground(opts)
+function M.init_playground(opts)
   local input_json_bufnr = vim.api.nvim_get_current_buf()
 
   local output_json_bufnr, _ = create_split_scratch_buf({
@@ -92,6 +92,7 @@ local function init_playground(opts)
   }, opts.query_window)
 
   vim.api.nvim_buf_set_lines(query_bufnr, 0, -1, false, {
+    -- TODO: change text
     "# JQ filter: press set keymap (default <CR> in normal mode) to execute.",
     "",
     "",
@@ -102,43 +103,52 @@ local function init_playground(opts)
   local run_jq_query = function()
     run_query(opts.filename or input_json_bufnr, query_bufnr, output_json_bufnr)
   end
-  local run_jq_query_opts = {
+
+  -- TODO: deprecate
+  for _, mapping in ipairs(opts.query_keymaps) do
+    vim.keymap.set(mapping[1], mapping[2], run_jq_query, {
+      buffer = query_bufnr,
+      silent = true,
+      desc = "Run jq query",
+    })
+  end
+
+  vim.keymap.set({ "n", "i" }, "<Plug>(JqPlaygroundRunQuery)", run_jq_query, {
     buffer = query_bufnr,
     silent = true,
-    desc = "Run current jq query",
-  }
-  for _, mapping in ipairs(opts.query_keymaps) do
-    vim.keymap.set(mapping[1], mapping[2], run_jq_query, run_jq_query_opts)
+    desc = "JqPlaygroundRunQuery",
+  })
+
+  -- To have a sensible default. Does not require user to define one
+  if not opts.disable_default_keymap then
+    vim.keymap.set({ "n" }, "<CR>", "<Plug>(JqPlaygroundRunQuery)", {
+      desc = "Default for JqPlaygroundRunQuery",
+    })
   end
 end
 
+-- TODO: deprecate
 function M.setup(opts)
-  local defaults = {
-    output_window = {
-      split_direction = "right",
-      width = nil,
-      height = nil,
-    },
-    query_window = {
-      split_direction = "below",
-      width = nil,
-      height = 0.3,
-    },
-    query_keymaps = {
-      { "n", "<CR>" },
-    },
-  }
+  local defaults = require("jq-playground.config")
 
-  local options = vim.tbl_deep_extend("force", defaults, opts)
+  local options = vim.tbl_deep_extend("force", defaults, opts or {})
 
   vim.api.nvim_create_user_command("JqPlayground", function(params)
     options["filename"] = params.fargs[1]
-    init_playground(options)
+    M.init_playground(options)
   end, {
     desc = "Start jq query editor and live preview",
     nargs = "?",
     complete = "file",
   })
+
+  vim.deprecate(
+    "require('jq-playground').setup()",
+    "vim.g.jq_playground = {}",
+    "0.2",
+    "jq-playground",
+    false
+  )
 end
 
 return M
