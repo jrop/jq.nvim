@@ -1,6 +1,12 @@
-# jq.nvim
+# jq.nvim (deprecated)
 
 > Interact with `jq` in Vim, using interactive buffers
+
+🚨🚨🚨
+
+NOTE: This plugin is [no longer actively maintained](https://github.com/jrop/jq.nvim/pull/2#issuecomment-2150127289). I suggest using [this fork instead](https://github.com/yochem/jq-playground.nvim).
+
+🚨🚨🚨
 
 ## Installation
 
